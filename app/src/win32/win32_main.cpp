@@ -7,6 +7,17 @@
 static void InitConsole();
 static HWND InitWindow(HINSTANCE hInstance);
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static void Render();
+
+constexpr int WIDTH = 1280;
+constexpr int HEIGHT = 720;
+
+static HWND hwnd;
+static HDC windowDeviceContext;
+static HDC bitmapDeviceContext;
+static HBITMAP bitmapHandle;
+static void* bitmapData;
+static bool isRed = true;
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -40,6 +51,8 @@ int WINAPI WinMain(
         {
             break;
         }
+
+        Render();
     }
 
     return 0;
@@ -62,15 +75,15 @@ HWND InitWindow(HINSTANCE hInstance)
 
     RegisterClassExW(&wc);
 
-    HWND hwnd = CreateWindowExW(NULL,
-                                L"RendererWindow",
-                                L"Test",
-                                WS_OVERLAPPEDWINDOW,
-                                CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720,
-                                NULL,
-                                NULL,
-                                hInstance,
-                                NULL);
+    hwnd = CreateWindowExW(
+        NULL,
+        L"RendererWindow",
+        L"Test",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, WIDTH, HEIGHT,
+        NULL,NULL,
+        hInstance,
+        NULL);
 
     return hwnd;
 }
@@ -79,6 +92,49 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 {
     switch (message)
     {
+        case WM_SIZE:
+        {
+            std::cout << "WM_SIZE" << std::endl;
+
+            if(bitmapHandle)
+            {
+                DeleteObject(bitmapHandle);
+            }
+
+            if(!bitmapDeviceContext)
+            {
+                bitmapDeviceContext = CreateCompatibleDC(nullptr);
+            }
+
+            RECT r;
+            GetClientRect(hWnd, &r);
+
+            BITMAPINFO bmi{};
+            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+            bmi.bmiHeader.biWidth = r.right - r.left;
+            bmi.bmiHeader.biHeight = r.top - r.bottom;
+            bmi.bmiHeader.biPlanes = 1;
+            bmi.bmiHeader.biBitCount = 32;
+            bmi.bmiHeader.biCompression = BI_RGB;
+
+            bitmapHandle = CreateDIBSection(
+                bitmapDeviceContext, &bmi, 
+                DIB_RGB_COLORS, 
+                &bitmapData, 
+                0, 0);
+
+            if (bitmapHandle)
+            {
+                SelectObject(bitmapDeviceContext, bitmapHandle);
+            }
+        } break;
+        case WM_KEYUP:
+        {
+            if (wParam == VK_SPACE)
+            {
+                isRed = !isRed;
+            }
+        } break;
         case WM_DESTROY:
         {
             PostQuitMessage(0);
@@ -88,3 +144,22 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
+
+void Render()
+{
+    RECT r;
+    GetClientRect(hwnd, &r);
+
+    char* pixelData = reinterpret_cast<char*>(bitmapData);
+    int width = r.right - r.left;
+    int height = r.bottom - r.top;
+    for (int i = 0; i < width * height * 4; i += 4)
+    {
+        pixelData[i] = !isRed ? 255 : 0;
+        pixelData[i + 2] = isRed ? 255 : 0;
+    }
+
+    HDC hdc = GetDC(hwnd);
+    BitBlt(hdc, 0, 0, r.right - r.left, r.bottom - r.top, bitmapDeviceContext, 0, 0, SRCCOPY);
+    DeleteDC(hdc);
+};
