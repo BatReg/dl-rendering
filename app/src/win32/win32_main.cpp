@@ -3,14 +3,20 @@
 #include <engine/test.h>
 
 #include <iostream>
+#include <chrono>
+#include <sstream>
+#include <thread>
 
 static void InitConsole();
 static HWND InitWindow(HINSTANCE hInstance);
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static void ResizeFramebuffer(HWND hWnd, int width, int height);
 static void Render();
 
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
+constexpr float MAX_FPS = 60.0;
+constexpr float MAX_PERIOD = 1.0f / MAX_FPS;
 
 static HWND hwnd;
 static HDC windowDeviceContext;
@@ -18,6 +24,8 @@ static HDC bitmapDeviceContext;
 static HBITMAP bitmapHandle;
 static void* bitmapData;
 static bool isRed = true;
+
+static std::chrono::steady_clock::time_point lastTime;
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -32,9 +40,14 @@ int WINAPI WinMain(
     HWND hwnd = InitWindow(hInstance);
     ShowWindow(hwnd, nShowCmd);
 
+    lastTime = std::chrono::high_resolution_clock::now();
+
     MSG msg;
     while(true)
     {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
+
         bool isQuitPosted = false;
         while(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
         {
@@ -52,7 +65,18 @@ int WINAPI WinMain(
             break;
         }
 
-        Render();
+        if (deltaTime > MAX_PERIOD) 
+        {
+            std::wstringstream ss{};
+            ss << "Test [FrameTime:" << std::to_wstring(deltaTime) << " FPS:" << std::to_wstring(1.0f / deltaTime) << "]";
+            SetWindowText(hwnd, ss.str().c_str());
+
+            Render();
+
+            lastTime = currentTime;
+        }
+
+        std::this_thread::yield();
     }
 
     return 0;
@@ -96,37 +120,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
         {
             std::cout << "WM_SIZE" << std::endl;
 
-            if(bitmapHandle)
-            {
-                DeleteObject(bitmapHandle);
-            }
-
-            if(!bitmapDeviceContext)
-            {
-                bitmapDeviceContext = CreateCompatibleDC(nullptr);
-            }
-
             RECT r;
             GetClientRect(hWnd, &r);
-
-            BITMAPINFO bmi{};
-            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            bmi.bmiHeader.biWidth = r.right - r.left;
-            bmi.bmiHeader.biHeight = r.top - r.bottom;
-            bmi.bmiHeader.biPlanes = 1;
-            bmi.bmiHeader.biBitCount = 32;
-            bmi.bmiHeader.biCompression = BI_RGB;
-
-            bitmapHandle = CreateDIBSection(
-                bitmapDeviceContext, &bmi, 
-                DIB_RGB_COLORS, 
-                &bitmapData, 
-                0, 0);
-
-            if (bitmapHandle)
-            {
-                SelectObject(bitmapDeviceContext, bitmapHandle);
-            }
+            ResizeFramebuffer(hWnd, r.right - r.left, r.bottom - r.top);            
+        } break;
+        case WM_PAINT:
+        {
+            std::cout << "WM_PAINT" << std::endl;
+            Render();
         } break;
         case WM_KEYUP:
         {
@@ -138,11 +139,42 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
         case WM_DESTROY:
         {
             PostQuitMessage(0);
-            return 0;
         } break;
     }
 
     return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void ResizeFramebuffer(HWND hWnd, int width, int height)
+{
+    if (bitmapHandle)
+    {
+        DeleteObject(bitmapHandle);
+    }
+
+    if (!bitmapDeviceContext)
+    {
+        bitmapDeviceContext = CreateCompatibleDC(nullptr);
+    }
+
+    BITMAPINFO bmi{};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    bitmapHandle = CreateDIBSection(
+        bitmapDeviceContext, &bmi,
+        DIB_RGB_COLORS,
+        &bitmapData,
+        0, 0);
+
+    if (bitmapHandle)
+    {
+        SelectObject(bitmapDeviceContext, bitmapHandle);
+    }
 }
 
 void Render()
