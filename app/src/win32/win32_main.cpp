@@ -3,6 +3,7 @@
 #include <engine/window.h>
 
 #include <chrono>
+#include <iostream>
 #include <sstream>
 #include <thread>
 
