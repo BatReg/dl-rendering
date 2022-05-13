@@ -1,4 +1,5 @@
-add_library(engine STATIC include/engine/window.h
+add_library(engine STATIC include/engine/core.h
+                          include/engine/window.h
                           src/int_window.h
                           src/platform.h
                           src/window.cpp)

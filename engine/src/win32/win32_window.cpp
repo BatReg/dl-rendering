@@ -4,20 +4,15 @@
 #include <iostream>
 #include <string>
 
-namespace Engine::Internal
+namespace Engine::Low::Internal
 {
     static constexpr wchar_t* WINDOW_CLASS_NAME = L"RendererWindow";
 
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static void OnSize(_NativeWindow* window, int width, int height);
 
-    NativeWindow* WindowCreate(const NativeWindowCreateInfo& info)
+    bool _WindowCreate(_NativeWindow* window)
     {
-        _NativeWindow* window = new _NativeWindow();
-        window->width = info.width;
-        window->height = info.height;
-        window->title = info.title;
-
         WNDCLASSEXW wc{};
         wc.cbSize = sizeof(wc);
         wc.lpfnWndProc = WindowProc;
@@ -25,8 +20,7 @@ namespace Engine::Internal
 
         if(!RegisterClassExW(&wc))
         {
-            delete window;
-            return nullptr;
+            return false;
         }
 
         std::wstring title(window->title.begin(), window->title.end());
@@ -47,20 +41,17 @@ namespace Engine::Internal
 
         if(!window->win32.windowHandle)
         {
-            delete window;
-            return nullptr;
+            return false;
         }
 
         SetWindowLongPtrW(window->win32.windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
         ShowWindow(window->win32.windowHandle, true);
 
-        return reinterpret_cast<NativeWindow*>(window);
+        return true;
     }
 
-    void WindowPollEvents(NativeWindow* handle)
+    void _WindowPollEvents(_NativeWindow* window)
     {
-        _NativeWindow* window = reinterpret_cast<_NativeWindow*>(handle);
-
         MSG msg;
         while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
         {
@@ -75,10 +66,8 @@ namespace Engine::Internal
         }
     }
 
-    void WindowSwapBuffers(const NativeWindow* handle)
-    {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
-        
+    void _WindowSwapBuffers(const _NativeWindow* window)
+    {        
         HDC hdc = GetDC(window->win32.windowHandle);
         BitBlt(
             hdc,
@@ -91,33 +80,8 @@ namespace Engine::Internal
         DeleteDC(hdc);
     }
 
-    bool WindowShouldQuit(const NativeWindow* handle)
+    void _WindowSetTitle(const _NativeWindow* window, const std::string& title)
     {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
-        return window->shouldQuit;
-    }
-
-    void* WindowGetFramebuffer(const NativeWindow* handle)
-    {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
-        return window->framebuffer;
-    }
-
-    int WindowGetWidth(const NativeWindow* handle)
-    {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
-        return window->width;
-    }
-
-    int WindowGetHeight(const NativeWindow* handle)
-    {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
-        return window->height;
-    }
-
-    void WindowSetTitle(const NativeWindow* handle, const std::string& title)
-    {
-        const _NativeWindow* window = reinterpret_cast<const _NativeWindow*>(handle);
         std::wstring wTitle(title.begin(), title.end());
         SetWindowTextW(window->win32.windowHandle, wTitle.c_str());
     }
