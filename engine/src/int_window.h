@@ -1,11 +1,10 @@
 #pragma once
 
-#include <engine/window.h>
 #include "platform.h"
 
 #include <string>
 
-namespace Engine::Internal
+namespace Engine::Low::Internal
 {
     struct _NativeWindow
     {
@@ -18,22 +17,10 @@ namespace Engine::Internal
         WINDOW_NATIVE_STATE;
     };
 
-    struct NativeWindowCreateInfo
-    {
-        int width{};
-        int height{};
-        std::string title{};
-    };
+    bool _WindowCreate(_NativeWindow* handle);
+    void _WindowPollEvents(_NativeWindow* handle);
+    void _WindowSwapBuffers(const _NativeWindow* handle);
 
-    NativeWindow* WindowCreate(const NativeWindowCreateInfo& info);
-    void WindowPollEvents(NativeWindow* handle);
-    void WindowSwapBuffers(const NativeWindow* handle);
-    bool WindowShouldQuit(const NativeWindow* handle);
-
-    void* WindowGetFramebuffer(const NativeWindow* handle);
-    int WindowGetWidth(const NativeWindow* handle);
-    int WindowGetHeight(const NativeWindow* handle);
-
-    void WindowSetTitle(const NativeWindow* handle, const std::string& title);
+    void _WindowSetTitle(const _NativeWindow* handle, const std::string& title);
 
 }

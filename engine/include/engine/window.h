@@ -1,22 +1,31 @@
 #pragma once
 
+#include <engine/core.h>
+
 #include <string>
 
-namespace Engine
+namespace Engine::Low
 {
     struct NativeWindow;
 
-    struct WindowInitInfo
-    {
-        int height{};
-        int width{};
-        std::string title{};
-    };
+    NativeWindow* WindowCreate(const WindowCreateInfo& info);
+    void WindowPollEvents(NativeWindow* handle);
+    void WindowSwapBuffers(const NativeWindow* handle);
+    bool WindowShouldQuit(const NativeWindow* handle);
 
+    void* WindowGetFramebuffer(const NativeWindow* handle);
+    int WindowGetWidth(const NativeWindow* handle);
+    int WindowGetHeight(const NativeWindow* handle);
+
+    void WindowSetTitle(NativeWindow* handle, const std::string& title);
+}
+
+namespace Engine
+{
     class Window
     {
     public:
-        bool Init(const WindowInitInfo& info);
+        bool Init(const WindowCreateInfo& info);
         void PollEvents();
         void SwapBuffers();
         bool ShouldQuit();
@@ -28,6 +37,6 @@ namespace Engine
         void SetTitle(const std::string& title);
     
     private:
-        NativeWindow* _handle;
+        Low::NativeWindow* _handle;
     };
 }

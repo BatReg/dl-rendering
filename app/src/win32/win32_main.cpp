@@ -27,7 +27,7 @@ int WINAPI WinMain(
 {
     InitConsole();
 
-    Engine::WindowInitInfo windowInitInfo{};
+    Engine::WindowCreateInfo windowInitInfo{};
     windowInitInfo.width = 1280;
     windowInitInfo.height = 720;
     windowInitInfo.title = "Test";
@@ -73,13 +73,25 @@ void Render()
 
     if (bitmapData) 
     {
-        char* pixelData = reinterpret_cast<char*>(bitmapData);
+        unsigned char* pixelData = reinterpret_cast<unsigned char*>(bitmapData);
         int width = window.GetWidth();
         int height = window.GetHeight();
-        for (int i = 0; i < width * height * 4; i += 4)
+
+        int count = width * height * 4;
+        int halfCount = count / 2;
+
+        for (int i = 0; i < count; i += 4)
         {
-            pixelData[i] = char(255);
-            pixelData[i + 2] = char(255);
+            if(i < halfCount)
+            {
+                pixelData[i] = 255U;
+                pixelData[i + 2] = 255U;
+            }
+            else
+            {
+                pixelData[i] = 255U;
+                pixelData[i + 1] = 255U;
+            }
         }
     }
 };

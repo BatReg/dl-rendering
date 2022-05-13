@@ -3,14 +3,9 @@
 
 namespace Engine
 {
-    bool Window::Init(const WindowInitInfo& info)
+    bool Window::Init(const WindowCreateInfo& info)
     {
-        Internal::NativeWindowCreateInfo windowCreateInfo{};
-        windowCreateInfo.width  = info.width;
-        windowCreateInfo.height = info.height;
-        windowCreateInfo.title  = info.title;        
-        
-        _handle = Internal::WindowCreate(windowCreateInfo);
+        _handle = Low::WindowCreate(info);
         return true;
     }
 
@@ -18,7 +13,7 @@ namespace Engine
     {
         if(_handle)
         {
-            Internal::WindowPollEvents(_handle);
+            Low::WindowPollEvents(_handle);
         }
     }
 
@@ -26,7 +21,7 @@ namespace Engine
     {
         if(_handle)
         {
-            Internal::WindowSwapBuffers(_handle);
+            Low::WindowSwapBuffers(_handle);
         }
     }
 
@@ -34,7 +29,7 @@ namespace Engine
     {
         if(_handle)
         {
-            return Internal::WindowShouldQuit(_handle);
+            return Low::WindowShouldQuit(_handle);
         }
 
         return false;
@@ -44,7 +39,7 @@ namespace Engine
     {
         if(_handle)
         {
-            return Internal::WindowGetFramebuffer(_handle);
+            return Low::WindowGetFramebuffer(_handle);
         }
 
         return nullptr;
@@ -54,7 +49,7 @@ namespace Engine
     {
         if(_handle)
         {
-            return Internal::WindowGetWidth(_handle);
+            return Low::WindowGetWidth(_handle);
         }
 
         return 0;
@@ -64,7 +59,7 @@ namespace Engine
     {
         if(_handle)
         {
-            return Internal::WindowGetHeight(_handle);
+            return Low::WindowGetHeight(_handle);
         }
 
         return 0;
@@ -74,7 +69,70 @@ namespace Engine
     {
         if(_handle)
         {
-            Internal::WindowSetTitle(_handle, title);
+            Low::WindowSetTitle(_handle, title);
         }
     }    
+}
+
+namespace Engine::Low
+{
+    NativeWindow* WindowCreate(const WindowCreateInfo& info)
+    {
+        Internal::_NativeWindow* window = new Internal::_NativeWindow();
+        window->width = info.width;
+        window->height = info.height;
+        window->title = info.title;
+
+        if(!Internal::_WindowCreate(window))
+        {
+            delete window;
+            return nullptr;
+        }
+
+        return reinterpret_cast<NativeWindow*>(window);
+    }
+
+    void WindowPollEvents(NativeWindow* handle)
+    {
+        Internal::_NativeWindow* window = reinterpret_cast<Internal::_NativeWindow*>(handle);
+        Internal::_WindowPollEvents(window);
+    }
+
+    void WindowSwapBuffers(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        Internal::_WindowSwapBuffers(window);
+    }
+
+    bool WindowShouldQuit(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return window->shouldQuit;
+    }
+
+    void* WindowGetFramebuffer(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return window->framebuffer;
+    }
+
+    int WindowGetWidth(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return window->width;
+    }
+
+    int WindowGetHeight(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return window->height;
+    }
+
+    void WindowSetTitle(NativeWindow* handle, const std::string& title)
+    {
+        Internal::_NativeWindow* window = reinterpret_cast<Internal::_NativeWindow*>(handle);
+        window->title = title;
+
+        Internal::_WindowSetTitle(window, title);
+    }
 }

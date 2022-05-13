@@ -2,7 +2,7 @@
 
 #include "win32_core.h"
 
-namespace Engine::Internal
+namespace Engine::Low::Internal
 {
     struct Win32WindowState
     {
