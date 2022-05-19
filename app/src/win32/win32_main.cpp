@@ -1,4 +1,5 @@
 #include "win32_win.h"
+#include <app/fps_counter.h>
 
 #include <engine/window.h>
 
@@ -7,9 +8,6 @@
 #include <sstream>
 #include <thread>
 
-static void InitConsole();
-static void Render();
-
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
 constexpr float MAX_FPS = 60.0;
@@ -17,6 +15,10 @@ constexpr float MAX_PERIOD = 1.0f / MAX_FPS;
 
 static Engine::Window window = Engine::Window();
 static std::chrono::steady_clock::time_point lastTime;
+static App::FpsCounter counter{};
+
+static void InitConsole();
+static void Render();
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -44,8 +46,10 @@ int WINAPI WinMain(
 
         if(deltaTime > MAX_PERIOD)
         {
+            counter.Update(deltaTime);
+
             std::stringstream ss{};
-            ss << "Test [FrameTime:" << std::to_string(deltaTime) << " FPS:" << std::to_string(1.0f / deltaTime) << "]";
+            ss << "Test [FrameTime:" << std::to_string(counter.DeltaTime()) << " FPS:" << std::to_string(counter.FPS()) << "]";
             window.SetTitle(ss.str());
 
             Render();
@@ -73,24 +77,27 @@ void Render()
 
     if (bitmapData) 
     {
-        unsigned char* pixelData = reinterpret_cast<unsigned char*>(bitmapData);
+        unsigned int* pixelData = reinterpret_cast<unsigned int*>(bitmapData);
         int width = window.GetWidth();
         int height = window.GetHeight();
 
-        int count = width * height * 4;
-        int halfCount = count / 2;
-
-        for (int i = 0; i < count; i += 4)
+        for (int j = 0; j < height; j++)
         {
-            if(i < halfCount)
+            for (int i = 0; i < width; i++)
             {
-                pixelData[i] = 255U;
-                pixelData[i + 2] = 255U;
-            }
-            else
-            {
-                pixelData[i] = 255U;
-                pixelData[i + 1] = 255U;
+                int pixelIdx = (i + j * width);
+
+                float b = 0.2f;
+                float g = float(height - 1 - j) / float(height);
+                float r = float(i) / float(width);
+
+                unsigned char ib = unsigned char(255.99 * b);
+                unsigned char ig = unsigned char(255.99 * g);
+                unsigned char ir = unsigned char(255.99 * r);
+
+                unsigned int pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
+
+                pixelData[pixelIdx] = pixel;
             }
         }
     }
