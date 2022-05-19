@@ -2,9 +2,9 @@
 
 namespace Engine::Math
 {
-    Ray::Ray(){}
+    Ray::Ray() noexcept {}
 
-    Ray::Ray(const Point3& origin, const Vec3& direction)
+    Ray::Ray(const Point3& origin, const Vec3& direction) noexcept
         : orig(origin), dir(direction)
     {}
 

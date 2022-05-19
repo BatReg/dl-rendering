@@ -3,6 +3,7 @@
 
 #include <engine/window.h>
 #include <engine/math/vec3.h>
+#include <engine/math/ray.h>
 
 #include <chrono>
 #include <iostream>
@@ -20,6 +21,7 @@ static App::FpsCounter counter{};
 
 static void InitConsole();
 static void Render();
+static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -78,17 +80,31 @@ void Render()
 
     if (bitmapData) 
     {
-        unsigned int* pixelData = reinterpret_cast<unsigned int*>(bitmapData);
-        int width = window.GetWidth();
-        int height = window.GetHeight();
+        const int width = window.GetWidth();
+        const int height = window.GetHeight();
 
+        const float aspectRatio = float(width) / float(height);
+        const float viewportHeight = 2.0f;
+        const float viewportWidth = aspectRatio * viewportHeight;
+        const float focalLength = 1.0f;
+
+        const Engine::Math::Point3 origin(0, 0, 0);
+        const Engine::Math::Vec3 horizontal(viewportWidth, 0, 0);
+        const Engine::Math::Vec3 vertical(0, viewportHeight, 0);
+        const Engine::Math::Vec3 lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Engine::Math::Vec3(0, 0, focalLength);
+
+        unsigned int* pixelData = reinterpret_cast<unsigned int*>(bitmapData);
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
             {
                 int pixelIdx = (i + j * width);
 
-                Engine::Math::Vec3 c{float(i) / float(width), float(height - 1 - j) / float(height), 0.2f};
+                float u = float(i) / (width - 1);
+                float v = float(height - 1 - j) / (height - 1);
+
+                Engine::Math::Ray r(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
+                Engine::Math::Color c = RayColor(r);
 
                 unsigned char ib = unsigned char(255.99 * c.B());
                 unsigned char ig = unsigned char(255.99 * c.G());
@@ -100,4 +116,12 @@ void Render()
             }
         }
     }
-};
+}
+
+Engine::Math::Color RayColor(const Engine::Math::Ray& r)
+{
+    Engine::Math::Vec3 unitDirection = Engine::Math::UnitVector(r.Direction());
+    float t = 0.5f * (unitDirection.Y() + 1.0f);
+
+    return (1.0f - t) * Engine::Math::Color(1.0f, 1.0f, 1.0f) + t * Engine::Math::Color(0.5f, 0.7f, 1.0f);
+}
