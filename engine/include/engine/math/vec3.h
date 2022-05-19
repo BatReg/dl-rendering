@@ -89,5 +89,4 @@ namespace Engine::Math
     {
         return v / v.Length();
     }
-
 }
