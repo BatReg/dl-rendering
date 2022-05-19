@@ -2,6 +2,7 @@
 #include <app/fps_counter.h>
 
 #include <engine/window.h>
+#include <engine/math/vec3.h>
 
 #include <chrono>
 #include <iostream>
@@ -87,13 +88,11 @@ void Render()
             {
                 int pixelIdx = (i + j * width);
 
-                float b = 0.2f;
-                float g = float(height - 1 - j) / float(height);
-                float r = float(i) / float(width);
+                Engine::Math::Vec3 c{float(i) / float(width), float(height - 1 - j) / float(height), 0.2f};
 
-                unsigned char ib = unsigned char(255.99 * b);
-                unsigned char ig = unsigned char(255.99 * g);
-                unsigned char ir = unsigned char(255.99 * r);
+                unsigned char ib = unsigned char(255.99 * c.B());
+                unsigned char ig = unsigned char(255.99 * c.G());
+                unsigned char ir = unsigned char(255.99 * c.R());
 
                 unsigned int pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
 

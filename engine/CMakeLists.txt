@@ -1,8 +1,10 @@
 add_library(engine STATIC include/engine/core.h
                           include/engine/window.h
+                          include/engine/math/vec3.h
                           src/int_window.h
                           src/platform.h
-                          src/window.cpp)
+                          src/window.cpp
+                          src/math/vec3.cpp)
 
 if(WIN32)
     target_sources(engine PRIVATE src/win32/win32_core.h
