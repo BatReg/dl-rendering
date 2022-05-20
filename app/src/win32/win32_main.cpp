@@ -17,7 +17,7 @@ constexpr float MAX_FPS = 60.0;
 constexpr float MAX_PERIOD = 1.0f / MAX_FPS;
 
 static Engine::Window window = Engine::Window();
-static std::chrono::steady_clock::time_point lastTime;
+static std::chrono::steady_clock::time_point lastTime{};
 static App::FpsCounter counter{};
 static Engine::Math::Sphere sphere(Engine::Math::Point3(0, 0, -1), 0.5);
 
@@ -25,7 +25,7 @@ static void InitConsole();
 static void Render();
 static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
 static bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r);
-static void OnKey(int keyCode);
+static void ProcessInput(float deltaTime);
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -42,15 +42,12 @@ int WINAPI WinMain(
     windowInitInfo.title = "Test";
 
     window.Init(windowInitInfo);
-    window.SetOnKey(OnKey);
 
     lastTime = std::chrono::high_resolution_clock::now();
     while(!window.ShouldQuit())
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
-
-        window.PollEvents();
 
         if(deltaTime > MAX_PERIOD)
         {
@@ -60,8 +57,12 @@ int WINAPI WinMain(
             ss << "Test [FrameTime:" << std::to_string(counter.DeltaTime()) << " FPS:" << std::to_string(counter.FPS()) << "]";
             window.SetTitle(ss.str());
 
+            ProcessInput(deltaTime);
+
             Render();
+
             window.SwapBuffers();
+            window.PollEvents();
 
             lastTime = currentTime;
         }
@@ -147,10 +148,32 @@ bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
     return discriminant > 0;
 }
 
-void OnKey(int keyCode)
+void ProcessInput(float deltaTime)
 {
-    if(keyCode == VK_SPACE)
+    const float speed = 1;
+    Engine::Math::Vec3 offset{};
+
+    short testingBit = 0x8000;
+
+    if(GetAsyncKeyState(VK_LEFT) & testingBit) 
     {
-        std::cout << "VK_SPACE has been pressed..." << std::endl;
+        offset += Engine::Math::Vec3(-1, 0, 0);
     }
+
+    if (GetAsyncKeyState(VK_RIGHT) & testingBit)
+    {
+        offset += Engine::Math::Vec3(1, 0, 0);
+    }
+
+    if (GetAsyncKeyState(VK_DOWN) & testingBit)
+    {
+        offset += Engine::Math::Vec3(0, -1, 0);
+    }
+
+    if (GetAsyncKeyState(VK_UP) & testingBit)
+    {
+        offset += Engine::Math::Vec3(0, 1, 0);
+    }
+
+    sphere.origin += offset * speed * deltaTime;
 }
