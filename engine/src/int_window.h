@@ -12,7 +12,7 @@ namespace Engine::Low::Internal
         int height{};
         std::string title{};
         bool shouldQuit{};
-        void* framebuffer;
+        void* framebuffer{};
 
         WINDOW_NATIVE_STATE;
     };
