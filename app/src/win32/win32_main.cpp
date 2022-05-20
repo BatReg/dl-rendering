@@ -108,7 +108,7 @@ void Render()
                 float u = float(i) / (width - 1);
                 float v = float(height - 1 - j) / (height - 1);
 
-                Engine::Math::Ray r(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
+                Engine::Math::Ray r(lowerLeftCorner + u * horizontal + v * vertical, Engine::Math::Vec3(0, 0, -1)); // ortographic
                 Engine::Math::Color c = RayColor(r);
 
                 unsigned char ib = unsigned char(255.99 * c.B());
