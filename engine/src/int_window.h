@@ -2,6 +2,8 @@
 
 #include "platform.h"
 
+#include <engine/core.h>
+
 #include <string>
 
 namespace Engine::Low::Internal
@@ -14,6 +16,11 @@ namespace Engine::Low::Internal
         bool shouldQuit{};
         void* framebuffer{};
 
+        struct
+        {
+            OnKey onKey;
+        } callbacs{};
+
         WINDOW_NATIVE_STATE;
     };
 
@@ -22,5 +29,4 @@ namespace Engine::Low::Internal
     void _WindowSwapBuffers(const _NativeWindow* handle);
 
     void _WindowSetTitle(const _NativeWindow* handle, const std::string& title);
-
 }

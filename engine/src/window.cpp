@@ -1,11 +1,14 @@
 #include <engine/window.h>
 #include "int_window.h"
 
+#include <iostream>
+
 namespace Engine
 {
     bool Window::Init(const WindowCreateInfo& info)
     {
         _handle = Low::WindowCreate(info);
+        Low::WindowSetOnKey(_handle, std::bind(&Window::OnWindowKey, this, std::placeholders::_1, std::placeholders::_2));
         return true;
     }
 
@@ -71,6 +74,19 @@ namespace Engine
         {
             Low::WindowSetTitle(_handle, title);
         }
+    }
+ 
+    void Window::SetOnKey(const OnKey& callback)
+    {
+        _onKey = callback;
+    }
+
+    void Window::OnWindowKey(Engine::Low::NativeWindow* window, int keyCode)
+    {
+        if(_onKey)
+        {
+            _onKey(keyCode);
+        }
     }    
 }
 
@@ -134,5 +150,11 @@ namespace Engine::Low
         window->title = title;
 
         Internal::_WindowSetTitle(window, title);
+    }
+
+    void WindowSetOnKey(NativeWindow* handle, const OnKey& callback)
+    {
+        Internal::_NativeWindow* window = reinterpret_cast<Internal::_NativeWindow*>(handle);
+        window->callbacs.onKey = callback;
     }
 }

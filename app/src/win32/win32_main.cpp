@@ -25,6 +25,7 @@ static void InitConsole();
 static void Render();
 static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
 static bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r);
+static void OnKey(int keyCode);
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -41,6 +42,7 @@ int WINAPI WinMain(
     windowInitInfo.title = "Test";
 
     window.Init(windowInitInfo);
+    window.SetOnKey(OnKey);
 
     lastTime = std::chrono::high_resolution_clock::now();
     while(!window.ShouldQuit())
@@ -143,4 +145,12 @@ bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
     float discriminant = b * b - 4 * a * c;
 
     return discriminant > 0;
+}
+
+void OnKey(int keyCode)
+{
+    if(keyCode == VK_SPACE)
+    {
+        std::cout << "VK_SPACE has been pressed..." << std::endl;
+    }
 }

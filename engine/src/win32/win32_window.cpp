@@ -105,6 +105,14 @@ namespace Engine::Low::Internal
                 {
                     PostQuitMessage(0);
                 } break;
+
+                case WM_KEYDOWN:
+                {
+                    if(window->callbacs.onKey)
+                    {
+                        window->callbacs.onKey(reinterpret_cast<NativeWindow*>(window), wParam);
+                    }
+                } break;
             }
         }
 
