@@ -72,7 +72,7 @@ namespace Engine::Math
 
     Vec3& Vec3::operator/=(const float t)
     {
-        return *this *= 1/t;
+        return *this *= 1.0f/t;
     }
 
     float Vec3::Length() const

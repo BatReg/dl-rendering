@@ -21,6 +21,10 @@ static std::chrono::steady_clock::time_point lastTime{};
 static App::FpsCounter counter{};
 static Engine::Math::Sphere sphere(Engine::Math::Point3(0, 0, -1), 0.5);
 
+static bool isFirstMouse = true;
+static long lastX{};
+static long lastY{};
+
 static void InitConsole();
 static void Render();
 static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
@@ -39,7 +43,11 @@ int WINAPI WinMain(
     Engine::WindowCreateInfo windowInitInfo{};
     windowInitInfo.width = 1280;
     windowInitInfo.height = 720;
-    windowInitInfo.title = "Test";
+    windowInitInfo.title = "Raytracer";
+
+    union { int a; float b{}; };
+
+    a = 4;
 
     window.Init(windowInitInfo);
 
@@ -153,27 +161,55 @@ void ProcessInput(float deltaTime)
     const float speed = 1;
     Engine::Math::Vec3 offset{};
 
-    short testingBit = 0x8000;
+    const short testingBit = short(0x8000);
 
-    if(GetAsyncKeyState(VK_LEFT) & testingBit) 
+    if (GetAsyncKeyState(VK_RBUTTON) & testingBit)
     {
-        offset += Engine::Math::Vec3(-1, 0, 0);
-    }
+        POINT p;
+        GetCursorPos(&p);
+        p.y = -p.y;
 
-    if (GetAsyncKeyState(VK_RIGHT) & testingBit)
+        if (isFirstMouse)
+        {
+            lastX = p.x;
+            lastY = p.y;
+            isFirstMouse = false;
+        }
+
+        const float xOffset = static_cast<float>(p.x - lastX);
+        const float yOffset = static_cast<float>(p.y - lastY);
+        lastX = p.x;
+        lastY = p.y;
+
+        const float sensitivity = 0.05f;
+        offset = Engine::Math::Vec3(1, 0, 0) * xOffset + Engine::Math::Vec3(0, 1, 0) * yOffset;
+
+        sphere.origin += offset * sensitivity * deltaTime;
+    }
+    else
     {
-        offset += Engine::Math::Vec3(1, 0, 0);
-    }
+        isFirstMouse = true;
 
-    if (GetAsyncKeyState(VK_DOWN) & testingBit)
-    {
-        offset += Engine::Math::Vec3(0, -1, 0);
-    }
+        if (GetAsyncKeyState(VK_LEFT) & testingBit)
+        {
+            offset += Engine::Math::Vec3(-1, 0, 0);
+        }
 
-    if (GetAsyncKeyState(VK_UP) & testingBit)
-    {
-        offset += Engine::Math::Vec3(0, 1, 0);
-    }
+        if (GetAsyncKeyState(VK_RIGHT) & testingBit)
+        {
+            offset += Engine::Math::Vec3(1, 0, 0);
+        }
 
-    sphere.origin += offset * speed * deltaTime;
+        if (GetAsyncKeyState(VK_DOWN) & testingBit)
+        {
+            offset += Engine::Math::Vec3(0, -1, 0);
+        }
+
+        if (GetAsyncKeyState(VK_UP) & testingBit)
+        {
+            offset += Engine::Math::Vec3(0, 1, 0);
+        }
+
+        sphere.origin += offset * speed * deltaTime;
+    }
 }
