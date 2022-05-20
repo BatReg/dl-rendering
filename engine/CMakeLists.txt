@@ -1,6 +1,7 @@
 add_library(engine STATIC include/engine/core.h
                           include/engine/window.h
                           include/engine/math/vec3.h
+                          include/engine/math/sphere.h
                           include/engine/math/ray.h
                           src/int_window.h
                           src/platform.h

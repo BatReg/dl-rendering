@@ -3,6 +3,7 @@
 
 #include <engine/window.h>
 #include <engine/math/vec3.h>
+#include <engine/math/sphere.h>
 #include <engine/math/ray.h>
 
 #include <chrono>
@@ -18,10 +19,12 @@ constexpr float MAX_PERIOD = 1.0f / MAX_FPS;
 static Engine::Window window = Engine::Window();
 static std::chrono::steady_clock::time_point lastTime;
 static App::FpsCounter counter{};
+static Engine::Math::Sphere sphere(Engine::Math::Point3(0, 0, -1), 0.5);
 
 static void InitConsole();
 static void Render();
 static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
+static bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r);
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -120,8 +123,24 @@ void Render()
 
 Engine::Math::Color RayColor(const Engine::Math::Ray& r)
 {
+    if(HitSphere(sphere, r))
+    {
+        return Engine::Math::Color(1, 0, 0);
+    }
+
     Engine::Math::Vec3 unitDirection = Engine::Math::UnitVector(r.Direction());
     float t = 0.5f * (unitDirection.Y() + 1.0f);
 
     return (1.0f - t) * Engine::Math::Color(1.0f, 1.0f, 1.0f) + t * Engine::Math::Color(0.5f, 0.7f, 1.0f);
+}
+
+bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
+{
+    Engine::Math::Vec3 oc = r.Origin() - s.origin;
+    float a = Engine::Math::Dot(r.Direction(), r.Direction());
+    float b = 2.0f * Engine::Math::Dot(oc, r.Direction());
+    float c = Engine::Math::Dot(oc, oc) - s.radius * s.radius;
+    float discriminant = b * b - 4 * a * c;
+
+    return discriminant > 0;
 }
