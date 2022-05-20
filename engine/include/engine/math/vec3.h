@@ -23,6 +23,7 @@ namespace Engine::Math
         float& operator[](int i);
 
         Vec3& operator+=(const Vec3& v);
+
         Vec3& operator*=(const float t);
         Vec3& operator/=(const float t);
 

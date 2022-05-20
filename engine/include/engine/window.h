@@ -43,7 +43,7 @@ namespace Engine
         void OnWindowKey(Low::NativeWindow* handle, int keyCode);
     
     private:
-        Low::NativeWindow* _handle;
-        OnKey _onKey;
+        Low::NativeWindow* _handle{};
+        OnKey _onKey{};
     };
 }
