@@ -137,7 +137,7 @@ namespace Engine::Low::Internal
         BITMAPINFO bmi{};
         bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
         bmi.bmiHeader.biWidth = width;
-        bmi.bmiHeader.biHeight = -height;
+        bmi.bmiHeader.biHeight = height;
         bmi.bmiHeader.biPlanes = 1;
         bmi.bmiHeader.biBitCount = 32;
         bmi.bmiHeader.biCompression = BI_RGB;

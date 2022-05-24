@@ -13,13 +13,14 @@
 
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
-constexpr float MAX_FPS = 60.0;
+constexpr float MAX_FPS = 60.0f;
 constexpr float MAX_PERIOD = 1.0f / MAX_FPS;
+constexpr char* TITLE = "Renderer";
 
 static Engine::Window window = Engine::Window();
 static std::chrono::steady_clock::time_point lastTime{};
 static App::FpsCounter counter{};
-static Engine::Math::Sphere sphere(Engine::Math::Point3(0, 0, -1), 0.5);
+static Engine::Math::Sphere sphere(Engine::Math::Point3(WIDTH / 2.0f, HEIGHT / 2.0f, 1.0f), 250.0f);
 
 static bool isFirstMouse = true;
 static long lastX{};
@@ -43,11 +44,7 @@ int WINAPI WinMain(
     Engine::WindowCreateInfo windowInitInfo{};
     windowInitInfo.width = 1280;
     windowInitInfo.height = 720;
-    windowInitInfo.title = "Raytracer";
-
-    union { int a; float b{}; };
-
-    a = 4;
+    windowInitInfo.title = TITLE;
 
     window.Init(windowInitInfo);
 
@@ -62,7 +59,7 @@ int WINAPI WinMain(
             counter.Update(deltaTime);
 
             std::stringstream ss{};
-            ss << "Test [FrameTime:" << std::to_string(counter.DeltaTime()) << " FPS:" << std::to_string(counter.FPS()) << "]";
+            ss << TITLE << " [FrameTime:" << std::to_string(counter.DeltaTime()) << " FPS:" << std::to_string(counter.FPS()) << "]";
             window.SetTitle(ss.str());
 
             ProcessInput(deltaTime);
@@ -97,27 +94,17 @@ void Render()
         const int width = window.GetWidth();
         const int height = window.GetHeight();
 
-        const float aspectRatio = float(width) / float(height);
-        const float viewportHeight = 2.0f;
-        const float viewportWidth = aspectRatio * viewportHeight;
-        const float focalLength = 1.0f;
-
-        const Engine::Math::Point3 origin(0, 0, 0);
-        const Engine::Math::Vec3 horizontal(viewportWidth, 0, 0);
-        const Engine::Math::Vec3 vertical(0, viewportHeight, 0);
-        const Engine::Math::Vec3 lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Engine::Math::Vec3(0, 0, focalLength);
-
         unsigned int* pixelData = reinterpret_cast<unsigned int*>(bitmapData);
-        for (int j = 0; j < height; j++)
+        for (int row = 0; row < height; row++)
         {
-            for (int i = 0; i < width; i++)
+            for (int col = 0; col < width; col++)
             {
-                int pixelIdx = (i + j * width);
+                int pixelIdx = (col + row * width);
 
-                float u = float(i) / (width - 1);
-                float v = float(height - 1 - j) / (height - 1);
+                float u = float(col + 0.5f);
+                float v = float(row + 0.5f);
 
-                Engine::Math::Ray r(lowerLeftCorner + u * horizontal + v * vertical, Engine::Math::Vec3(0, 0, -1)); // ortographic
+                Engine::Math::Ray r(Engine::Math::Point3(u, v, 0), Engine::Math::Vec3(0, 0, 1)); // ortographic
                 Engine::Math::Color c = RayColor(r);
 
                 unsigned char ib = unsigned char(255.99 * c.B());
@@ -158,10 +145,9 @@ bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
 
 void ProcessInput(float deltaTime)
 {
-    const float speed = 1;
-    Engine::Math::Vec3 offset{};
-
     const short testingBit = short(0x8000);
+
+    Engine::Math::Vec3 offset{};
 
     if (GetAsyncKeyState(VK_RBUTTON) & testingBit)
     {
@@ -181,7 +167,7 @@ void ProcessInput(float deltaTime)
         lastX = p.x;
         lastY = p.y;
 
-        const float sensitivity = 0.05f;
+        const float sensitivity = 10.0f;
         offset = Engine::Math::Vec3(1, 0, 0) * xOffset + Engine::Math::Vec3(0, 1, 0) * yOffset;
 
         sphere.origin += offset * sensitivity * deltaTime;
@@ -189,6 +175,8 @@ void ProcessInput(float deltaTime)
     else
     {
         isFirstMouse = true;
+
+        const float speed = 100.0f;
 
         if (GetAsyncKeyState(VK_LEFT) & testingBit)
         {
