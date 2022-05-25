@@ -1,19 +1,19 @@
 #pragma once
 
-#include <engine/math/vec3.h>
+#include <Eigen/Dense>
 
 namespace Engine::Math
 {
     struct Sphere
     {
-        Point3 origin{};
+        Eigen::Vector3f origin{};
         float radius{};
 
         Sphere() noexcept
             : origin(), radius(0)
         {}
 
-        Sphere(const Point3& o, float r)
+        Sphere(const Eigen::Vector3f& o, float r)
             : origin(o), radius(r)
         {}
     };

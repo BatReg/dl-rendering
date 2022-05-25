@@ -1,24 +1,26 @@
 #include <engine/math/ray.h>
 
+#include <Eigen/Dense>
+
 namespace Engine::Math
 {
     Ray::Ray() noexcept {}
 
-    Ray::Ray(const Point3& origin, const Vec3& direction) noexcept
+    Ray::Ray(const Eigen::Vector3f& origin, const Eigen::Vector3f& direction) noexcept
         : orig(origin), dir(direction)
     {}
 
-    Point3 Ray::Origin() const
+    Eigen::Vector3f Ray::Origin() const
     {
         return orig;
     }
 
-    Vec3 Ray::Direction() const
+    Eigen::Vector3f Ray::Direction() const
     {
         return dir;
     }
 
-    Point3 Ray::At(float t) const
+    Eigen::Vector3f Ray::At(float t) const
     {
         return orig + t * dir;
     }

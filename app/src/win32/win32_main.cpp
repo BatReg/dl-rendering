@@ -2,16 +2,15 @@
 #include <app/fps_counter.h>
 
 #include <engine/window.h>
-#include <engine/math/vec3.h>
 #include <engine/math/sphere.h>
 #include <engine/math/ray.h>
+#include <Eigen/Dense>
 
 #include <chrono>
 #include <iostream>
 #include <sstream>
 #include <thread>
 
-#include <Eigen/Dense>
 
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
@@ -22,7 +21,10 @@ constexpr char* TITLE = "Renderer";
 static Engine::Window window = Engine::Window();
 static std::chrono::steady_clock::time_point lastTime{};
 static App::FpsCounter counter{};
-static Engine::Math::Sphere sphere(Engine::Math::Point3(WIDTH / 2.0f, HEIGHT / 2.0f, 1.0f), 250.0f);
+static Engine::Math::Sphere sphere(
+    Eigen::Vector3f(static_cast<float>(WIDTH) / 2.0f, static_cast<float>(HEIGHT) / 2.0f, 0.0f), 
+    250.0f
+);
 
 static bool isFirstMouse = true;
 static long lastX{};
@@ -30,7 +32,7 @@ static long lastY{};
 
 static void InitConsole();
 static void Render();
-static Engine::Math::Color RayColor(const Engine::Math::Ray& r);
+static Eigen::Vector3f RayColor(const Engine::Math::Ray& r);
 static bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r);
 static void ProcessInput(float deltaTime);
 
@@ -42,13 +44,6 @@ int WINAPI WinMain(
 )
 {
     InitConsole();
-
-    Eigen::MatrixXd m(2, 2);
-    m(0, 0) = 3;
-    m(1, 0) = 2.5;
-    m(0, 1) = -1;
-    m(1, 1) = m(1, 0) + m(0,1);
-    std::cout << m << std::endl;
 
     Engine::WindowCreateInfo windowInitInfo{};
     windowInitInfo.width = 1280;
@@ -113,12 +108,12 @@ void Render()
                 float u = float(col + 0.5f);
                 float v = float(row + 0.5f);
 
-                Engine::Math::Ray r(Engine::Math::Point3(u, v, 0), Engine::Math::Vec3(0, 0, 1)); // ortographic
-                Engine::Math::Color c = RayColor(r);
+                Engine::Math::Ray r(Eigen::Vector3f(u, v, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 1.0f)); // ortographic
+                Eigen::Vector3f c = RayColor(r);
 
-                unsigned char ib = unsigned char(255.99 * c.B());
-                unsigned char ig = unsigned char(255.99 * c.G());
-                unsigned char ir = unsigned char(255.99 * c.R());
+                unsigned char ib = unsigned char(255.99 * c.z());
+                unsigned char ig = unsigned char(255.99 * c.y());
+                unsigned char ir = unsigned char(255.99 * c.x());
 
                 unsigned int pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
 
@@ -128,25 +123,22 @@ void Render()
     }
 }
 
-Engine::Math::Color RayColor(const Engine::Math::Ray& r)
+Eigen::Vector3f RayColor(const Engine::Math::Ray& r)
 {
     if(HitSphere(sphere, r))
     {
-        return Engine::Math::Color(1, 0, 0);
+        return Eigen::Vector3f(1.0f, 0.0f, 0.0f);
     }
 
-    Engine::Math::Vec3 unitDirection = Engine::Math::UnitVector(r.Direction());
-    float t = 0.5f * (unitDirection.Y() + 1.0f);
-
-    return (1.0f - t) * Engine::Math::Color(1.0f, 1.0f, 1.0f) + t * Engine::Math::Color(0.5f, 0.7f, 1.0f);
+    return Eigen::Vector3f(0.1f, 0.1f, 0.1f);
 }
 
 bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
 {
-    Engine::Math::Vec3 oc = r.Origin() - s.origin;
-    float a = Engine::Math::Dot(r.Direction(), r.Direction());
-    float b = 2.0f * Engine::Math::Dot(oc, r.Direction());
-    float c = Engine::Math::Dot(oc, oc) - s.radius * s.radius;
+    Eigen::Vector3f oc = r.Origin() - s.origin;
+    float a = r.Direction().dot(r.Direction());
+    float b = 2.0f * oc.dot(r.Direction());
+    float c = oc.dot(oc) - s.radius * s.radius;
     float discriminant = b * b - 4 * a * c;
 
     return discriminant > 0;
@@ -156,7 +148,7 @@ void ProcessInput(float deltaTime)
 {
     const short testingBit = short(0x8000);
 
-    Engine::Math::Vec3 offset{};
+    Eigen::Vector3f offset = Eigen::Vector3f::Zero();
 
     if (GetAsyncKeyState(VK_RBUTTON) & testingBit)
     {
@@ -177,7 +169,7 @@ void ProcessInput(float deltaTime)
         lastY = p.y;
 
         const float sensitivity = 10.0f;
-        offset = Engine::Math::Vec3(1, 0, 0) * xOffset + Engine::Math::Vec3(0, 1, 0) * yOffset;
+        offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
 
         sphere.origin += offset * sensitivity * deltaTime;
     }
@@ -189,22 +181,22 @@ void ProcessInput(float deltaTime)
 
         if (GetAsyncKeyState(VK_LEFT) & testingBit)
         {
-            offset += Engine::Math::Vec3(-1, 0, 0);
+            offset += Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
         }
 
         if (GetAsyncKeyState(VK_RIGHT) & testingBit)
         {
-            offset += Engine::Math::Vec3(1, 0, 0);
+            offset += Eigen::Vector3f(1.0f, 0.0f, 0.0f);
         }
 
         if (GetAsyncKeyState(VK_DOWN) & testingBit)
         {
-            offset += Engine::Math::Vec3(0, -1, 0);
+            offset += Eigen::Vector3f(0.0f, -1.0f, 0.0f);
         }
 
         if (GetAsyncKeyState(VK_UP) & testingBit)
         {
-            offset += Engine::Math::Vec3(0, 1, 0);
+            offset += Eigen::Vector3f(0.0f, 1.0f, 0.0f);
         }
 
         sphere.origin += offset * speed * deltaTime;

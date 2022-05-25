@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/math/vec3.h>
+#include <Eigen/Dense>
 
 namespace Engine::Math
 {
@@ -8,15 +8,15 @@ namespace Engine::Math
     {
     public:
         Ray() noexcept;
-        Ray(const Point3& origin, const Vec3& direction) noexcept;
+        Ray(const Eigen::Vector3f& origin, const Eigen::Vector3f& direction) noexcept;
 
-        Point3 Origin() const;
-        Vec3 Direction() const;
-        Point3 At(float t) const;
+        Eigen::Vector3f Origin() const;
+        Eigen::Vector3f Direction() const;
+        Eigen::Vector3f At(float t) const;
 
     public:
-        Point3 orig;
-        Vec3 dir;
+        Eigen::Vector3f orig;
+        Eigen::Vector3f dir;
     };  
 }
 
