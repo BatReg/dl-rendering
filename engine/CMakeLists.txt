@@ -18,3 +18,5 @@ if(WIN32)
 endif()
 
 target_include_directories(engine PUBLIC include)
+
+add_subdirectory(vendor)

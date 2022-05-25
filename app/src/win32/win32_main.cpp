@@ -11,6 +11,8 @@
 #include <sstream>
 #include <thread>
 
+#include <Eigen/Dense>
+
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
 constexpr float MAX_FPS = 60.0f;
@@ -40,6 +42,13 @@ int WINAPI WinMain(
 )
 {
     InitConsole();
+
+    Eigen::MatrixXd m(2, 2);
+    m(0, 0) = 3;
+    m(1, 0) = 2.5;
+    m(0, 1) = -1;
+    m(1, 1) = m(1, 0) + m(0,1);
+    std::cout << m << std::endl;
 
     Engine::WindowCreateInfo windowInitInfo{};
     windowInitInfo.width = 1280;
