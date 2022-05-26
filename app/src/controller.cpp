@@ -24,12 +24,6 @@ namespace App
     {
         ProcessInput(deltaTime);
         Render();
-
-        bool isUpKeyPressed = _window.GetKeyState(Engine::Key::Up);
-        if(isUpKeyPressed)
-        {
-            std::cout << "UP" << std::endl;
-        }
     }
 
     void Controller::Destroy()
@@ -59,9 +53,9 @@ namespace App
                     Engine::Math::Ray r(Eigen::Vector3f(u, v, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 1.0f)); // ortographic
                     Eigen::Vector3f c = RayColor(r);
 
-                    unsigned char ib = unsigned char(255.99 * c.z());
-                    unsigned char ig = unsigned char(255.99 * c.y());
-                    unsigned char ir = unsigned char(255.99 * c.x());
+                    uint8_t ib = unsigned char(255.99 * c.z());
+                    uint8_t ig = unsigned char(255.99 * c.y());
+                    uint8_t ir = unsigned char(255.99 * c.x());
 
                     uint32_t pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
 
@@ -94,7 +88,7 @@ namespace App
 
     void Controller::ProcessInput(float deltaTime)
     {
-        if(_window.GetKeyState(Engine::Key::Escape))
+        if(_window.IsKeyDown(Engine::Key::Escape))
         {
             _window.RequestQuit();
         }
@@ -131,22 +125,22 @@ namespace App
 
             const float speed = 100.0f;
 
-            if (_window.GetKeyState(Engine::Key::Left))
+            if (_window.IsKeyDown(Engine::Key::Left))
             {
                 offset += Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
             }
 
-            if (_window.GetKeyState(Engine::Key::Right))
+            if (_window.IsKeyDown(Engine::Key::Right))
             {
                 offset += Eigen::Vector3f(1.0f, 0.0f, 0.0f);
             }
 
-            if (_window.GetKeyState(Engine::Key::Down))
+            if (_window.IsKeyDown(Engine::Key::Down))
             {
                 offset += Eigen::Vector3f(0.0f, -1.0f, 0.0f);
             }
 
-            if (_window.GetKeyState(Engine::Key::Up))
+            if (_window.IsKeyDown(Engine::Key::Up))
             {
                 offset += Eigen::Vector3f(0.0f, 1.0f, 0.0f);
             }

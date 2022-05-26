@@ -4,6 +4,7 @@
 
 #include <engine/core.h>
 
+#include <cstdint>
 #include <string>
 
 namespace Engine::Low::Internal
@@ -16,6 +17,15 @@ namespace Engine::Low::Internal
         bool shouldQuit{};
         void* framebuffer{};
 
+        bool keys[Engine::KEY_SIZE]{};
+        bool mouseButtons[Engine::MOUSE_BUTTON_SIZE]{};
+
+        struct
+        {
+            uint32_t lastX{};
+            uint32_t lastY{};
+        } mouse {};
+
         struct
         {
         } callbacs{};
@@ -26,8 +36,6 @@ namespace Engine::Low::Internal
     bool _WindowCreate(_NativeWindow* window);
     void _WindowPollEvents(_NativeWindow* window);
     void _WindowSwapBuffers(const _NativeWindow* window);
-
-    bool _WindowGetKeyState(const _NativeWindow* window, const Key key);
 
     void _WindowSetTitle(const _NativeWindow* window, const std::string& title);
 }

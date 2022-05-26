@@ -16,7 +16,8 @@ namespace Engine::Low
     int WindowGetWidth(const NativeWindow* handle);
     int WindowGetHeight(const NativeWindow* handle);
 
-    bool WindowGetKeyState(const NativeWindow* handle, const Key key);
+    bool WindowIsKeyDown(const NativeWindow* handle, const Key key);
+    bool WindowIsMouseButtonDown(const NativeWindow* handle, const MouseButton button);
 
     void WindowSetTitle(NativeWindow* handle, const std::string& title);
     
@@ -36,7 +37,8 @@ namespace Engine
         void* GetFramebuffer() const;
         int GetWidth() const;
         int GetHeight() const;
-        bool GetKeyState(const Key key) const;
+        bool IsKeyDown(const Key key) const;
+        bool IsMouseButtonDown(const MouseButton button) const;
 
         void SetTitle(const std::string& title);
 

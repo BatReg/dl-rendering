@@ -67,11 +67,21 @@ namespace Engine
         return 0;
     }
 
-    bool Window::GetKeyState(const Key key) const
+    bool Window::IsKeyDown(const Key key) const
     {
         if(_handle)
         {
-            return Low::WindowGetKeyState(_handle, key);
+            return Low::WindowIsKeyDown(_handle, key);
+        }
+
+        return false;
+    }
+
+    bool Window::IsMouseButtonDown(const MouseButton button) const
+    {
+        if(_handle)
+        {
+            return Low::WindowIsMouseButtonDown(_handle, button);
         }
 
         return false;
@@ -148,10 +158,16 @@ namespace Engine::Low
         return window->height;
     }
 
-    bool WindowGetKeyState(const NativeWindow* handle, const Key key)
+    bool WindowIsKeyDown(const NativeWindow* handle, const Key key)
     {
         const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
-        return Internal::_WindowGetKeyState(window, key);
+        return window->keys[static_cast<uint16_t>(key)];
+    }
+
+    bool WindowIsMouseButtonDown(const NativeWindow* handle, const MouseButton button)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return window->mouseButtons[static_cast<uint8_t>(button)];
     }
 
     void WindowSetTitle(NativeWindow* handle, const std::string& title)

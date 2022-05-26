@@ -80,12 +80,6 @@ namespace Engine::Low::Internal
         DeleteDC(hdc);
     }
 
-    bool _WindowGetKeyState(const _NativeWindow* window, const Key key)
-    {
-        bool result = window->win32.keys[static_cast<int>(key)];
-        return result;
-    }
-
     void _WindowSetTitle(const _NativeWindow* window, const std::string& title)
     {
         std::wstring wTitle(title.begin(), title.end());
@@ -113,15 +107,38 @@ namespace Engine::Low::Internal
                 } break;
 
                 case WM_KEYDOWN:
-                {
-                    Key key = MapWParamToKey(wParam);
-                    window->win32.keys[static_cast<uint16_t>(key)] = true;
-                } break;
-
                 case WM_KEYUP:
                 {
                     Key key = MapWParamToKey(wParam);
-                    window->win32.keys[static_cast<uint16_t>(key)] = false;
+                    bool isDown = message == WM_KEYDOWN;
+
+                    window->keys[static_cast<uint16_t>(key)] = isDown;
+                } break;
+
+                case WM_LBUTTONDOWN:
+                case WM_RBUTTONDOWN:
+                case WM_MBUTTONDOWN:
+                case WM_LBUTTONUP:
+                case WM_RBUTTONUP:
+                case WM_MBUTTONUP:
+                {
+                    MouseButton button;
+                    if(message == WM_LBUTTONDOWN || message == WM_LBUTTONUP)
+                    {
+                        button = MouseButton::Left;
+                    }
+                    else if (message == WM_RBUTTONDOWN || message == WM_RBUTTONUP)
+                    {
+                        button = MouseButton::Right;
+                    }
+                    else if (message == WM_MBUTTONDOWN || message == WM_MBUTTONUP)
+                    {
+                        button = MouseButton::Middle;
+                    }
+
+                    bool isButtonDown = message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN;
+
+                    window->mouseButtons[static_cast<uint8_t>(button)] = isButtonDown;
                 } break;
             }
         }

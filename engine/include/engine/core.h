@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <string>
 
@@ -66,4 +67,17 @@ namespace Engine
         Down = 264,
         Up = 265
     };
+
+    enum class MouseButton
+    {
+        _1 = 0,
+        _2 = 1,
+        _3 = 2,
+        Left = _1,
+        Right = _2,
+        Middle = _3
+    };
+
+    constexpr uint16_t KEY_SIZE = static_cast<uint16_t>(Key::Up) + 1;
+    constexpr uint8_t MOUSE_BUTTON_SIZE = static_cast<uint8_t>(MouseButton::_3) + 1;
 }
