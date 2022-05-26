@@ -1,7 +1,7 @@
 #include <engine/window.h>
 #include "int_window.h"
 
-#include <iostream>
+#include <utility>
 
 namespace Engine
 {
@@ -65,6 +65,16 @@ namespace Engine
         }
 
         return 0;
+    }
+
+    std::pair<int, int> Window::GetMousePos() const
+    {
+        if(_handle)
+        {
+            return Low::WindowGetMousePos(_handle);
+        }
+
+        return std::pair<int, int>(0, 0);
     }
 
     bool Window::IsKeyDown(const Key key) const
@@ -156,6 +166,12 @@ namespace Engine::Low
     {
         const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
         return window->height;
+    }
+
+    std::pair<int, int> WindowGetMousePos(const NativeWindow* handle)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return std::pair(window->mouse.lastX, window->mouse.lastY);
     }
 
     bool WindowIsKeyDown(const NativeWindow* handle, const Key key)

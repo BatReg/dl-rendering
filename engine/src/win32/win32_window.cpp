@@ -2,6 +2,7 @@
 #include "win32_core.h"
 
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 namespace Engine::Low::Internal
@@ -47,6 +48,12 @@ namespace Engine::Low::Internal
 
         SetWindowLongPtrW(window->win32.windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
         ShowWindow(window->win32.windowHandle, true);
+
+        POINT p;
+        GetCursorPos(&p);
+
+        window->mouse.lastX = p.x;
+        window->mouse.lastY = p.y;
 
         return true;
     }
@@ -139,6 +146,15 @@ namespace Engine::Low::Internal
                     bool isButtonDown = message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN;
 
                     window->mouseButtons[static_cast<uint8_t>(button)] = isButtonDown;
+                } break;
+
+                case WM_MOUSEMOVE:
+                {
+                    const int x = GET_X_LPARAM(lParam);
+                    const int y = GET_Y_LPARAM(lParam);
+
+                    window->mouse.lastX = x;
+                    window->mouse.lastY = y;
                 } break;
             }
         }

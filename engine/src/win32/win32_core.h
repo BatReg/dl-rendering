@@ -2,3 +2,4 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <Windowsx.h>

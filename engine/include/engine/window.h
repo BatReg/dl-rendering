@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <string>
+#include <utility>
 
 namespace Engine::Low
 {
@@ -15,6 +16,7 @@ namespace Engine::Low
     void* WindowGetFramebuffer(const NativeWindow* handle);
     int WindowGetWidth(const NativeWindow* handle);
     int WindowGetHeight(const NativeWindow* handle);
+    std::pair<int, int> WindowGetMousePos(const NativeWindow* handle);
 
     bool WindowIsKeyDown(const NativeWindow* handle, const Key key);
     bool WindowIsMouseButtonDown(const NativeWindow* handle, const MouseButton button);
@@ -37,6 +39,8 @@ namespace Engine
         void* GetFramebuffer() const;
         int GetWidth() const;
         int GetHeight() const;
+        std::pair<int, int> GetMousePos() const;
+
         bool IsKeyDown(const Key key) const;
         bool IsMouseButtonDown(const MouseButton button) const;
 
