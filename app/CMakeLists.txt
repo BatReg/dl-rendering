@@ -1,5 +1,7 @@
 if(WIN32)
     add_executable(app WIN32 
+                             src/controller.h
+                             src/controller.cpp
                              src/fps_counter.h
                              src/fps_counter.cpp
                              src/win32/win32_win.h
