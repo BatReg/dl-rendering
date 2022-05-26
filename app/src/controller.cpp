@@ -6,6 +6,9 @@
 #include <engine/math/sphere.h>
 #include <Eigen/Dense>
 
+#include <cstdint>
+#include <iostream>
+
 namespace App
 {
     void Controller::Init(const Engine::Window& window)
@@ -21,6 +24,12 @@ namespace App
     {
         ProcessInput(deltaTime);
         Render();
+
+        bool isUpKeyPressed = _window.GetKeyState(Engine::Key::Up);
+        if(isUpKeyPressed)
+        {
+            std::cout << "UP" << std::endl;
+        }
     }
 
     void Controller::Destroy()
@@ -37,7 +46,7 @@ namespace App
             const int width = _window.GetWidth();
             const int height = _window.GetHeight();
 
-            unsigned int* pixelData = reinterpret_cast<unsigned int*>(bitmapData);
+            uint32_t* pixelData = reinterpret_cast<uint32_t*>(bitmapData);
             for (int row = 0; row < height; row++)
             {
                 for (int col = 0; col < width; col++)
@@ -54,7 +63,7 @@ namespace App
                     unsigned char ig = unsigned char(255.99 * c.y());
                     unsigned char ir = unsigned char(255.99 * c.x());
 
-                    unsigned int pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
+                    uint32_t pixel = (0 << 24) | (ir << 16) | (ig << 8) | (ib);
 
                     pixelData[pixelIdx] = pixel;
                 }
@@ -85,31 +94,36 @@ namespace App
 
     void Controller::ProcessInput(float deltaTime)
     {
+        if(_window.GetKeyState(Engine::Key::Escape))
+        {
+            _window.RequestQuit();
+        }
+
         const short testingBit = short(0x8000);
         Eigen::Vector3f offset = Eigen::Vector3f::Zero();
 
         if (GetAsyncKeyState(VK_RBUTTON) & testingBit)
         {
-            POINT p;
-            GetCursorPos(&p);
-            p.y = -p.y;
+            // POINT p;
+            // GetCursorPos(&p);
+            // p.y = -p.y;
 
-            if (_isFirstMouse)
-            {
-                _lastX = p.x;
-                _lastY = p.y;
-                _isFirstMouse = false;
-            }
+            // if (_isFirstMouse)
+            // {
+            //     _lastX = p.x;
+            //     _lastY = p.y;
+            //     _isFirstMouse = false;
+            // }
 
-            const float xOffset = static_cast<float>(p.x - _lastX);
-            const float yOffset = static_cast<float>(p.y - _lastY);
-            _lastX = p.x;
-            _lastY = p.y;
+            // const float xOffset = static_cast<float>(p.x - _lastX);
+            // const float yOffset = static_cast<float>(p.y - _lastY);
+            // _lastX = p.x;
+            // _lastY = p.y;
 
-            const float sensitivity = 10.0f;
-            offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
+            // const float sensitivity = 10.0f;
+            // offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
 
-            _sphere.origin += offset * sensitivity * deltaTime;
+            // _sphere.origin += offset * sensitivity * deltaTime;
         }
         else
         {
@@ -117,22 +131,22 @@ namespace App
 
             const float speed = 100.0f;
 
-            if (GetAsyncKeyState(VK_LEFT) & testingBit)
+            if (_window.GetKeyState(Engine::Key::Left))
             {
                 offset += Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
             }
 
-            if (GetAsyncKeyState(VK_RIGHT) & testingBit)
+            if (_window.GetKeyState(Engine::Key::Right))
             {
                 offset += Eigen::Vector3f(1.0f, 0.0f, 0.0f);
             }
 
-            if (GetAsyncKeyState(VK_DOWN) & testingBit)
+            if (_window.GetKeyState(Engine::Key::Down))
             {
                 offset += Eigen::Vector3f(0.0f, -1.0f, 0.0f);
             }
 
-            if (GetAsyncKeyState(VK_UP) & testingBit)
+            if (_window.GetKeyState(Engine::Key::Up))
             {
                 offset += Eigen::Vector3f(0.0f, 1.0f, 0.0f);
             }

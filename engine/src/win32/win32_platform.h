@@ -9,5 +9,7 @@ namespace Engine::Low::Internal
         HWND windowHandle{};
         HDC bitmapDeviceContext{};
         HBITMAP bitmapHandle{};
+
+        bool keys[512]{};
     };
 }

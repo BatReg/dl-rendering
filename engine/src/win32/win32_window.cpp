@@ -1,7 +1,7 @@
 #include "../int_window.h"
 #include "win32_core.h"
 
-#include <iostream>
+#include <cstdint>
 #include <string>
 
 namespace Engine::Low::Internal
@@ -10,6 +10,7 @@ namespace Engine::Low::Internal
 
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static void OnSize(_NativeWindow* window, int width, int height);
+    static Key MapWParamToKey(WPARAM param);
 
     bool _WindowCreate(_NativeWindow* window)
     {
@@ -57,7 +58,6 @@ namespace Engine::Low::Internal
         {
             if(msg.message == WM_QUIT)
             {
-                std::cout << "WM_QUIT" << std::endl;
                 window->shouldQuit = true;
             }
 
@@ -78,6 +78,12 @@ namespace Engine::Low::Internal
         );
 
         DeleteDC(hdc);
+    }
+
+    bool _WindowGetKeyState(const _NativeWindow* window, const Key key)
+    {
+        bool result = window->win32.keys[static_cast<int>(key)];
+        return result;
     }
 
     void _WindowSetTitle(const _NativeWindow* window, const std::string& title)
@@ -108,10 +114,14 @@ namespace Engine::Low::Internal
 
                 case WM_KEYDOWN:
                 {
-                    if(window->callbacs.onKey)
-                    {
-                        window->callbacs.onKey(reinterpret_cast<NativeWindow*>(window), wParam);
-                    }
+                    Key key = MapWParamToKey(wParam);
+                    window->win32.keys[static_cast<uint16_t>(key)] = true;
+                } break;
+
+                case WM_KEYUP:
+                {
+                    Key key = MapWParamToKey(wParam);
+                    window->win32.keys[static_cast<uint16_t>(key)] = false;
                 } break;
             }
         }
@@ -151,6 +161,25 @@ namespace Engine::Low::Internal
         if(window->win32.bitmapHandle)
         {
             SelectObject(window->win32.bitmapDeviceContext, window->win32.bitmapHandle);
+        }
+    }
+
+    Key MapWParamToKey(WPARAM param)
+    {
+        switch(param)
+        {
+            case VK_UP:
+                return Key::Up;
+            case VK_DOWN:
+                return Key::Down;
+            case VK_RIGHT:
+                return Key::Right;
+            case VK_LEFT:
+                return Key::Left;
+            case VK_ESCAPE:
+                return Key::Escape;
+            default:
+                return static_cast<Key>(param);
         }
     }
 }

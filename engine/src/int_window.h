@@ -18,15 +18,16 @@ namespace Engine::Low::Internal
 
         struct
         {
-            OnKey onKey;
         } callbacs{};
 
         WINDOW_NATIVE_STATE;
     };
 
-    bool _WindowCreate(_NativeWindow* handle);
-    void _WindowPollEvents(_NativeWindow* handle);
-    void _WindowSwapBuffers(const _NativeWindow* handle);
+    bool _WindowCreate(_NativeWindow* window);
+    void _WindowPollEvents(_NativeWindow* window);
+    void _WindowSwapBuffers(const _NativeWindow* window);
 
-    void _WindowSetTitle(const _NativeWindow* handle, const std::string& title);
+    bool _WindowGetKeyState(const _NativeWindow* window, const Key key);
+
+    void _WindowSetTitle(const _NativeWindow* window, const std::string& title);
 }

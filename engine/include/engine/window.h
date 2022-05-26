@@ -16,14 +16,15 @@ namespace Engine::Low
     int WindowGetWidth(const NativeWindow* handle);
     int WindowGetHeight(const NativeWindow* handle);
 
+    bool WindowGetKeyState(const NativeWindow* handle, const Key key);
+
     void WindowSetTitle(NativeWindow* handle, const std::string& title);
-    void WindowSetOnKey(NativeWindow* handle, const OnKey& callback);
+    
+    void WindowRequestQuit(NativeWindow* handle);
 }
 
 namespace Engine
-{
-    typedef std::function<void (int keyCode)> OnKey;
-   
+{   
     class Window
     {
     public:
@@ -35,15 +36,13 @@ namespace Engine
         void* GetFramebuffer() const;
         int GetWidth() const;
         int GetHeight() const;
+        bool GetKeyState(const Key key) const;
 
         void SetTitle(const std::string& title);
-        void SetOnKey(const OnKey& callback);
 
-    private:
-        void OnWindowKey(Low::NativeWindow* handle, int keyCode);
+        void RequestQuit();
     
     private:
         Low::NativeWindow* _handle{};
-        OnKey _onKey{};
     };
 }

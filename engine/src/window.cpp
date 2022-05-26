@@ -8,7 +8,6 @@ namespace Engine
     bool Window::Init(const WindowCreateInfo& info)
     {
         _handle = Low::WindowCreate(info);
-        Low::WindowSetOnKey(_handle, std::bind(&Window::OnWindowKey, this, std::placeholders::_1, std::placeholders::_2));
         return true;
     }
 
@@ -68,6 +67,16 @@ namespace Engine
         return 0;
     }
 
+    bool Window::GetKeyState(const Key key) const
+    {
+        if(_handle)
+        {
+            return Low::WindowGetKeyState(_handle, key);
+        }
+
+        return false;
+    }
+
     void Window::SetTitle(const std::string& title)
     {
         if(_handle)
@@ -75,19 +84,14 @@ namespace Engine
             Low::WindowSetTitle(_handle, title);
         }
     }
- 
-    void Window::SetOnKey(const OnKey& callback)
-    {
-        _onKey = callback;
-    }
 
-    void Window::OnWindowKey(Engine::Low::NativeWindow* window, int keyCode)
+    void Window::RequestQuit()
     {
-        if(_onKey)
+        if(_handle)
         {
-            _onKey(keyCode);
+            Low::WindowRequestQuit(_handle);
         }
-    }    
+    }
 }
 
 namespace Engine::Low
@@ -144,6 +148,12 @@ namespace Engine::Low
         return window->height;
     }
 
+    bool WindowGetKeyState(const NativeWindow* handle, const Key key)
+    {
+        const Internal::_NativeWindow* window = reinterpret_cast<const Internal::_NativeWindow*>(handle);
+        return Internal::_WindowGetKeyState(window, key);
+    }
+
     void WindowSetTitle(NativeWindow* handle, const std::string& title)
     {
         Internal::_NativeWindow* window = reinterpret_cast<Internal::_NativeWindow*>(handle);
@@ -152,9 +162,9 @@ namespace Engine::Low
         Internal::_WindowSetTitle(window, title);
     }
 
-    void WindowSetOnKey(NativeWindow* handle, const OnKey& callback)
+    void WindowRequestQuit(NativeWindow* handle)
     {
         Internal::_NativeWindow* window = reinterpret_cast<Internal::_NativeWindow*>(handle);
-        window->callbacs.onKey = callback;
+        window->shouldQuit = true;
     }
 }
