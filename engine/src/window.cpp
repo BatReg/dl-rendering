@@ -28,7 +28,7 @@ namespace Engine
         }
     }
 
-    bool Window::ShouldQuit()
+    bool Window::ShouldQuit() const
     {
         if(_handle)
         {
@@ -38,7 +38,7 @@ namespace Engine
         return false;
     }
 
-    void* Window::GetFramebuffer()
+    void* Window::GetFramebuffer() const
     {
         if(_handle)
         {
@@ -48,7 +48,7 @@ namespace Engine
         return nullptr;
     }
 
-    int Window::GetWidth()
+    int Window::GetWidth() const
     {
         if(_handle)
         {
@@ -58,7 +58,7 @@ namespace Engine
         return 0;
     }
 
-    int Window::GetHeight()
+    int Window::GetHeight() const
     {
         if(_handle)
         {

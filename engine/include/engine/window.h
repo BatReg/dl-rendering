@@ -30,11 +30,11 @@ namespace Engine
         bool Init(const WindowCreateInfo& info);
         void PollEvents();
         void SwapBuffers();
-        bool ShouldQuit();
+        bool ShouldQuit() const;
 
-        void* GetFramebuffer();
-        int GetWidth();
-        int GetHeight();
+        void* GetFramebuffer() const;
+        int GetWidth() const;
+        int GetHeight() const;
 
         void SetTitle(const std::string& title);
         void SetOnKey(const OnKey& callback);
