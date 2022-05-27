@@ -18,6 +18,7 @@ namespace Engine::Low::Internal
         WNDCLASSEXW wc{};
         wc.cbSize = sizeof(wc);
         wc.lpfnWndProc = WindowProc;
+        wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
         wc.lpszClassName = WINDOW_CLASS_NAME;
 
         if(!RegisterClassExW(&wc))
