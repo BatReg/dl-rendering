@@ -1,4 +1,5 @@
 #include "controller.h"
+#include "objects/sphere.h"
 
 #include <engine/math/sphere.h>
 #include <Eigen/Dense>
@@ -15,7 +16,19 @@ namespace App
 
         float width = static_cast<float>(window.GetWidth());
         float height = static_cast<float>(window.GetHeight());
-        _scene.spheres.push_back(Engine::Math::Sphere(Eigen::Vector3f(width / 2.0f, height / 2.0f, 1.0f), 250.0f));
+        _scene.spheres = std::vector<App::Objects::Sphere>(3);
+        _scene.spheres[0] = App::Objects::Sphere(
+            Engine::Math::Sphere(Eigen::Vector3f(width / 2.0f, height / 2.0f, 1.0f), 250.0f), 
+            Eigen::Vector3f(1.0f, 0.0f, 0.0f)
+        );
+        _scene.spheres[1] = App::Objects::Sphere(
+            Engine::Math::Sphere(Eigen::Vector3f(width / 4.0f, height / 2.0f, 300.0f), 250.0f),
+            Eigen::Vector3f(1.0f, 1.0f, 0.0f)
+        );
+        _scene.spheres[2] = App::Objects::Sphere(
+            Engine::Math::Sphere(Eigen::Vector3f(3.0f * width / 4.0f, height / 2.0f, 300.0f), 250.0f),
+            Eigen::Vector3f(0.0f, 1.0f, 1.0f)
+        );
     }
 
     void Controller::Update(float deltaTime)
@@ -65,23 +78,44 @@ namespace App
 
     Eigen::Vector3f Controller::RayColor(const Engine::Math::Ray& r)
     {
-        if(HitSphere(_scene.spheres.front(), r))
+        Eigen::Vector3f color(0.1f, 0.1f, 0.1f);
+
+        float dist = std::numeric_limits<float>::max();
+        for (const auto& s : _scene.spheres)
         {
-            return Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+            float x;
+            if (HitSphere(s.sphere, r, x) && x < dist)
+            {
+                color = s.color;
+                dist = x;
+            }
         }
 
-        return Eigen::Vector3f(0.1f, 0.1f, 0.1f);
+        return color;
     }
 
-    bool Controller::HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r)
+    bool Controller::HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r, float& x)
     {
         Eigen::Vector3f oc = r.Origin() - s.origin;
-        float a = r.Direction().dot(r.Direction());
-        float b = 2.0f * oc.dot(r.Direction());
-        float c = oc.dot(oc) - s.radius * s.radius;
-        float discriminant = b * b - 4 * a * c;
+        float a = r.Direction().squaredNorm();
+        float half_b = oc.dot(r.Direction());
+        float c = oc.squaredNorm() - s.radius * s.radius;
+        float discriminant = half_b * half_b - a * c;
 
-        return discriminant > 0;
+        if(discriminant < 0)
+        {
+            return false;
+        }
+        else if (discriminant == 0)
+        {
+            x = -half_b / a;
+            return true;
+        }
+        else
+        {
+            x = (-half_b - sqrtf(discriminant)) / a;
+            return true;
+        }
     }
 
     void Controller::ProcessInput(float deltaTime)
@@ -115,7 +149,7 @@ namespace App
             const float sensitivity = 10.0f;
             offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
 
-            _scene.spheres.front().origin += offset * sensitivity * deltaTime;
+            _scene.spheres[0].sphere.origin += offset * sensitivity * deltaTime;
         }
         else
         {
@@ -143,7 +177,7 @@ namespace App
                 offset += Eigen::Vector3f(0.0f, 1.0f, 0.0f);
             }
 
-            _scene.spheres.front().origin += offset * speed * deltaTime;
+            _scene.spheres[0].sphere.origin += offset * speed * deltaTime;
         }
     }
 }

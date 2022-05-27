@@ -5,6 +5,8 @@ if(WIN32)
                              src/fps_counter.h
                              src/fps_counter.cpp
                              src/scene.h
+                             src/objects/sphere.h
+                             src/objects/sphere.cpp
                              src/win32/win32_win.h
                              src/win32/win32_main.cpp)
     

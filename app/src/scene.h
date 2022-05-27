@@ -1,13 +1,13 @@
 #pragma once
 
-#include <engine/math/sphere.h>
+#include "objects/sphere.h"
 
-#include <list>
+#include <vector>
 
 namespace App
 {
     struct Scene
     {
-        std::list<Engine::Math::Sphere> spheres{};
+        std::vector<App::Objects::Sphere> spheres{};
     };
 }

@@ -20,7 +20,7 @@ namespace App
         void Render();
 
         Eigen::Vector3f RayColor(const Engine::Math::Ray& r);
-        bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r);
+        bool HitSphere(const Engine::Math::Sphere& s, const Engine::Math::Ray& r, float& x);
     
     private:
         Engine::Window _window{};
