@@ -1,8 +1,5 @@
 #include "controller.h"
 
-// TODO: (Nikita) temp hack - need to refactor
-#include "win32/win32_win.h"
-
 #include <engine/math/sphere.h>
 #include <Eigen/Dense>
 
@@ -97,28 +94,28 @@ namespace App
         const short testingBit = short(0x8000);
         Eigen::Vector3f offset = Eigen::Vector3f::Zero();
 
-        if (GetAsyncKeyState(VK_RBUTTON) & testingBit)
+        if (_window.IsMouseButtonDown(Engine::MouseButton::Right))
         {
-            // POINT p;
-            // GetCursorPos(&p);
-            // p.y = -p.y;
+            std::pair<int, int> p = _window.GetMousePos();
+            int x = p.first;
+            int y = p.second;
 
-            // if (_isFirstMouse)
-            // {
-            //     _lastX = p.x;
-            //     _lastY = p.y;
-            //     _isFirstMouse = false;
-            // }
+            if (_isFirstMouse)
+            {
+                _lastX = x;
+                _lastY = y;
+                _isFirstMouse = false;
+            }
 
-            // const float xOffset = static_cast<float>(p.x - _lastX);
-            // const float yOffset = static_cast<float>(p.y - _lastY);
-            // _lastX = p.x;
-            // _lastY = p.y;
+            const float xOffset = static_cast<float>(x - _lastX);
+            const float yOffset = static_cast<float>(y - _lastY);
+            _lastX = x;
+            _lastY = y;
 
-            // const float sensitivity = 10.0f;
-            // offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
+            const float sensitivity = 10.0f;
+            offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
 
-            // _sphere.origin += offset * sensitivity * deltaTime;
+            _sphere.origin += offset * sensitivity * deltaTime;
         }
         else
         {

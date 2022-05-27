@@ -143,9 +143,17 @@ namespace Engine::Low::Internal
                         button = MouseButton::Middle;
                     }
 
-                    bool isButtonDown = message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN;
-
+                    bool isButtonDown = message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN;                    
                     window->mouseButtons[static_cast<uint8_t>(button)] = isButtonDown;
+
+                    if(isButtonDown)
+                    {
+                        SetCapture(hWnd);
+                    }
+                    else
+                    {
+                        ReleaseCapture();
+                    }
                 } break;
 
                 case WM_MOUSEMOVE:
@@ -154,7 +162,7 @@ namespace Engine::Low::Internal
                     const int y = GET_Y_LPARAM(lParam);
 
                     window->mouse.lastX = x;
-                    window->mouse.lastY = y;
+                    window->mouse.lastY = -y;
                 } break;
             }
         }
