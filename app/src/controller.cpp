@@ -15,7 +15,7 @@ namespace App
 
         float width = static_cast<float>(window.GetWidth());
         float height = static_cast<float>(window.GetHeight());
-        _sphere = Engine::Math::Sphere(Eigen::Vector3f(width / 2.0f, height / 2.0f, 1.0f), 250.0f);
+        _scene.spheres.push_back(Engine::Math::Sphere(Eigen::Vector3f(width / 2.0f, height / 2.0f, 1.0f), 250.0f));
     }
 
     void Controller::Update(float deltaTime)
@@ -65,7 +65,7 @@ namespace App
 
     Eigen::Vector3f Controller::RayColor(const Engine::Math::Ray& r)
     {
-        if(HitSphere(_sphere, r))
+        if(HitSphere(_scene.spheres.front(), r))
         {
             return Eigen::Vector3f(1.0f, 0.0f, 0.0f);
         }
@@ -115,7 +115,7 @@ namespace App
             const float sensitivity = 10.0f;
             offset = Eigen::Vector3f(1.0f, 0.0f, 0.0f) * xOffset + Eigen::Vector3f(0.0f, 1.0f, 0.0f) * yOffset;
 
-            _sphere.origin += offset * sensitivity * deltaTime;
+            _scene.spheres.front().origin += offset * sensitivity * deltaTime;
         }
         else
         {
@@ -143,7 +143,7 @@ namespace App
                 offset += Eigen::Vector3f(0.0f, 1.0f, 0.0f);
             }
 
-            _sphere.origin += offset * speed * deltaTime;
+            _scene.spheres.front().origin += offset * speed * deltaTime;
         }
     }
 }

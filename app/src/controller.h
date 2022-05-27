@@ -1,5 +1,7 @@
 #pragma once
 
+#include "scene.h"
+
 #include <engine/window.h>
 #include <engine/math/ray.h>
 #include <engine/math/sphere.h>
@@ -27,6 +29,6 @@ namespace App
         long _lastX{};
         long _lastY{};
 
-        Engine::Math::Sphere _sphere{};
+        App::Scene _scene{};
     };
 }
