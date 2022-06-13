@@ -5,6 +5,7 @@ add_library(engine STATIC include/engine/core.h
                           src/int_window.h
                           src/platform.h
                           src/window.cpp
+                          src/math/sphere.cpp
                           src/math/ray.cpp)
 
 if(WIN32)

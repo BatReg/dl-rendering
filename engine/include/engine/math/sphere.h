@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ray.h"
+
 #include <Eigen/Dense>
 
 namespace Engine::Math
@@ -20,5 +22,7 @@ namespace Engine::Math
         Sphere(const Sphere& s) noexcept
             : origin(s.origin), radius(s.radius)
         {}
+
+        bool Intersects(const Ray& ray, Intersection& outNearest) const;
     };
 }
